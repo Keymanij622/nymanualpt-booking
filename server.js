@@ -36,14 +36,19 @@ if (!fs.existsSync(DATA_FILE)) {
 app.use(cors());
 app.use(express.json());
 
-// Email transporter (Gmail)
+// Email transporter (Gmail with explicit settings)
 let transporter = null;
 if (EMAIL_PASS) {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false
     }
   });
   console.log('Email notifications enabled');
