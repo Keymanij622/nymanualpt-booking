@@ -65,53 +65,136 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_REFRESH_TOKEN) {
   console.log('Google Calendar integration disabled (missing credentials)');
 }
 
+// Helper: Generate patient confirmation email HTML
+function confirmationEmailHTML(name, date) {
+  const appointmentDate = new Date(date);
+  const dateTimeStr = appointmentDate.toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'
+  });
+  const year = new Date().getFullYear();
+
+  return `
+  <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+            
+            <!-- Header -->
+            <tr>
+              <td style="background:#0d6e6e; padding:20px; text-align:center;">
+                <h1 style="color:#ffffff; margin:0; font-size:24px;">NY Manual Physical Therapy</h1>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:30px; color:#333;">
+                <h2 style="margin-top:0; color:#0d6e6e;">Appointment Confirmed</h2>
+                <p>Hi ${name},</p>
+                <p>Your appointment has been successfully booked.</p>
+
+                <table cellpadding="10" cellspacing="0" style="background:#f9f9f9; border-radius:6px; width:100%; margin:20px 0;">
+                  <tr>
+                    <td><strong>Date & Time</strong></td>
+                    <td>${dateTimeStr}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Location</strong></td>
+                    <td>5608 New Utrecht Avenue, Brooklyn, NY 11219</td>
+                  </tr>
+                </table>
+
+                <p style="margin-top:20px;">
+                  If you need to reschedule or cancel, please contact us at <strong>(929) 705-0376</strong>.
+                </p>
+
+                <p style="margin-top:20px;">
+                  <a href="https://newyorkmanualpt.com"
+                     style="display:inline-block; background:#0d6e6e; color:#ffffff; padding:12px 20px; border-radius:4px; text-decoration:none; font-weight:bold;">
+                     Visit Our Website
+                  </a>
+                </p>
+
+                <p style="margin-top:20px;">
+                  —<br />
+                  <strong>NY Manual Physical Therapy</strong>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background:#eeeeee; padding:15px; text-align:center; font-size:12px; color:#777;">
+                © ${year} NY Manual Physical Therapy<br />
+                <a href="https://newyorkmanualpt.com" style="color:#0d6e6e;">newyorkmanualpt.com</a>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+  `;
+}
+
+// Helper: Generate admin notification email HTML
+function adminNotificationHTML(name, email, phone, date, location) {
+  const appointmentDate = new Date(date);
+  const dateTimeStr = appointmentDate.toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'
+  });
+
+  return `
+  <div style="font-family: Arial, sans-serif; padding:20px;">
+    <h2 style="color:#0d6e6e; margin-top:0;">New Appointment Booking</h2>
+    <table cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+      <tr>
+        <td style="border-bottom:1px solid #eee;"><strong>Name:</strong></td>
+        <td style="border-bottom:1px solid #eee;">${name}</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #eee;"><strong>Email:</strong></td>
+        <td style="border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #eee;"><strong>Phone:</strong></td>
+        <td style="border-bottom:1px solid #eee;">${phone || '—'}</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid #eee;"><strong>Date & Time:</strong></td>
+        <td style="border-bottom:1px solid #eee;">${dateTimeStr}</td>
+      </tr>
+      <tr>
+        <td><strong>Location:</strong></td>
+        <td>${location || '—'}</td>
+      </tr>
+    </table>
+  </div>
+  `;
+}
+
 // Helper: Send email notification
 async function sendEmailNotification(booking) {
   if (!transporter) return;
 
-  const appointmentDate = new Date(booking.start);
-  const dateStr = appointmentDate.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-  const timeStr = appointmentDate.toLocaleTimeString('en-US', {
-    hour: '2-digit', minute: '2-digit'
-  });
-
   // Email to clinic owner
   const ownerEmail = {
-    from: EMAIL_USER,
+    from: `"NY Manual PT Booking" <${EMAIL_USER}>`,
     to: EMAIL_USER,
-    subject: `New Appointment: ${booking.name} - ${dateStr}`,
-    html: `
-      <h2>New Appointment Booked</h2>
-      <p><strong>Patient:</strong> ${booking.name}</p>
-      <p><strong>Email:</strong> ${booking.email}</p>
-      <p><strong>Phone:</strong> ${booking.phone || 'Not provided'}</p>
-      <p><strong>Location:</strong> ${booking.location || 'Not specified'}</p>
-      <p><strong>Date:</strong> ${dateStr}</p>
-      <p><strong>Time:</strong> ${timeStr}</p>
-      <hr>
-      <p><small>Booking ID: ${booking.id}</small></p>
-    `
+    subject: `New Appointment: ${booking.name}`,
+    html: adminNotificationHTML(booking.name, booking.email, booking.phone, booking.start, booking.location)
   };
 
   // Confirmation email to patient
   const patientEmail = {
-    from: EMAIL_USER,
+    from: `"NY Manual Physical Therapy" <${EMAIL_USER}>`,
     to: booking.email,
-    subject: `Appointment Confirmed - NY Manual PT`,
-    html: `
-      <h2>Your Appointment is Confirmed!</h2>
-      <p>Hi ${booking.name},</p>
-      <p>Your appointment at New York Manual Physical Therapy has been confirmed.</p>
-      <p><strong>Date:</strong> ${dateStr}</p>
-      <p><strong>Time:</strong> ${timeStr}</p>
-      <p><strong>Location:</strong> ${booking.location || '5608 New Utrecht Avenue, Brooklyn, NY 11219'}</p>
-      <hr>
-      <p>If you need to reschedule or cancel, please call us at <strong>(929) 705-0376</strong>.</p>
-      <p>We look forward to seeing you!</p>
-      <p>— NY Manual PT Team</p>
-    `
+    subject: `Your Appointment is Confirmed - NY Manual PT`,
+    html: confirmationEmailHTML(booking.name, booking.start)
   };
 
   try {
