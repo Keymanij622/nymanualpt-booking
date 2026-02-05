@@ -36,21 +36,31 @@ if (!fs.existsSync(DATA_FILE)) {
 app.use(cors());
 app.use(express.json());
 
-// Email transporter (Gmail with explicit settings)
+// Email transporter (Gmail with SSL)
 let transporter = null;
 if (EMAIL_PASS) {
   transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS
     },
-    tls: {
-      rejectUnauthorized: false
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000
+  });
+  
+  // Verify connection on startup
+  transporter.verify(function(error, success) {
+    if (error) {
+      console.log('Email setup error:', error.message);
+    } else {
+      console.log('Email server ready');
     }
   });
+  
   console.log('Email notifications enabled');
 } else {
   console.log('Email notifications disabled (no EMAIL_PASS set)');
