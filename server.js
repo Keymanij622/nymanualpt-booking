@@ -3,15 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Email configuration
-const EMAIL_USER = process.env.EMAIL_USER || 'hewidypt@gmail.com';
-const EMAIL_PASS = process.env.EMAIL_PASS; // Gmail App Password
+// Email configuration (Resend)
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const CLINIC_EMAIL = 'hewidypt@gmail.com';
 
 // Google Calendar configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -36,34 +36,13 @@ if (!fs.existsSync(DATA_FILE)) {
 app.use(cors());
 app.use(express.json());
 
-// Email transporter (Gmail with SSL)
-let transporter = null;
-if (EMAIL_PASS) {
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000
-  });
-  
-  // Verify connection on startup
-  transporter.verify(function(error, success) {
-    if (error) {
-      console.log('Email setup error:', error.message);
-    } else {
-      console.log('Email server ready');
-    }
-  });
-  
-  console.log('Email notifications enabled');
+// Resend email client
+let resend = null;
+if (RESEND_API_KEY) {
+  resend = new Resend(RESEND_API_KEY);
+  console.log('Email notifications enabled (Resend)');
 } else {
-  console.log('Email notifications disabled (no EMAIL_PASS set)');
+  console.log('Email notifications disabled (no RESEND_API_KEY set)');
 }
 
 // Google Calendar OAuth2 client
@@ -194,28 +173,25 @@ function adminNotificationHTML(name, email, phone, date, location) {
 
 // Helper: Send email notification
 async function sendEmailNotification(booking) {
-  if (!transporter) return;
-
-  // Email to clinic owner
-  const ownerEmail = {
-    from: `"NY Manual PT Booking" <${EMAIL_USER}>`,
-    to: EMAIL_USER,
-    subject: `New Appointment: ${booking.name}`,
-    html: adminNotificationHTML(booking.name, booking.email, booking.phone, booking.start, booking.location)
-  };
-
-  // Confirmation email to patient
-  const patientEmail = {
-    from: `"NY Manual Physical Therapy" <${EMAIL_USER}>`,
-    to: booking.email,
-    subject: `Your Appointment is Confirmed - NY Manual PT`,
-    html: confirmationEmailHTML(booking.name, booking.start)
-  };
+  if (!resend) return;
 
   try {
-    await transporter.sendMail(ownerEmail);
-    console.log(`Email sent to clinic: ${EMAIL_USER}`);
-    await transporter.sendMail(patientEmail);
+    // Email to clinic owner
+    await resend.emails.send({
+      from: 'NY Manual PT Booking <onboarding@resend.dev>',
+      to: CLINIC_EMAIL,
+      subject: `New Appointment: ${booking.name}`,
+      html: adminNotificationHTML(booking.name, booking.email, booking.phone, booking.start, booking.location)
+    });
+    console.log(`Email sent to clinic: ${CLINIC_EMAIL}`);
+
+    // Confirmation email to patient
+    await resend.emails.send({
+      from: 'NY Manual Physical Therapy <onboarding@resend.dev>',
+      to: booking.email,
+      subject: `Your Appointment is Confirmed - NY Manual PT`,
+      html: confirmationEmailHTML(booking.name, booking.start)
+    });
     console.log(`Confirmation email sent to patient: ${booking.email}`);
   } catch (err) {
     console.error('Email error:', err.message);
