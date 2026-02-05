@@ -178,10 +178,12 @@ function saveBookings(bookings) {
   fs.writeFileSync(DATA_FILE, JSON.stringify({ bookings }, null, 2));
 }
 
-// Helper: Generate time slots for a given date
+// Helper: Generate time slots for a given date (in EST/EDT - New York timezone)
 function generateSlots(dateStr) {
-  const date = new Date(dateStr + 'T00:00:00');
-  const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+  // Parse the date and check day of week
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const checkDate = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)); // noon UTC to safely get day
+  const dayOfWeek = checkDate.getUTCDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
 
   // Open Sunday-Thursday (0-4), Closed Friday (5) and Saturday (6)
   if (dayOfWeek === 5 || dayOfWeek === 6) {
@@ -190,29 +192,42 @@ function generateSlots(dateStr) {
 
   const slots = [];
   
-  // Business hours: 10 AM - 6 PM
+  // Business hours: 10 AM - 6 PM EST/EDT (New York)
   // Slot duration: 20 minutes
   const startHour = 10;
   const endHour = 18;
   const slotDurationMinutes = 20;
 
-  let currentTime = new Date(dateStr + 'T00:00:00');
-  currentTime.setHours(startHour, 0, 0, 0);
+  // Determine if date is in DST (rough check for US)
+  // DST: 2nd Sunday in March to 1st Sunday in November
+  const janDate = new Date(Date.UTC(year, 0, 1));
+  const julDate = new Date(Date.UTC(year, 6, 1));
+  const stdOffset = Math.max(janDate.getTimezoneOffset(), julDate.getTimezoneOffset());
+  
+  // For NY: EST = UTC-5, EDT = UTC-4
+  // Check if the date falls in DST period
+  const marchSecondSun = new Date(Date.UTC(year, 2, 8 + (7 - new Date(Date.UTC(year, 2, 1)).getUTCDay()) % 7));
+  const novFirstSun = new Date(Date.UTC(year, 10, 1 + (7 - new Date(Date.UTC(year, 10, 1)).getUTCDay()) % 7));
+  
+  const isDST = checkDate >= marchSecondSun && checkDate < novFirstSun;
+  const utcOffset = isDST ? 4 : 5; // EDT = UTC-4, EST = UTC-5
 
-  const endTime = new Date(dateStr + 'T00:00:00');
-  endTime.setHours(endHour, 0, 0, 0);
-
-  while (currentTime < endTime) {
-    const slotEnd = new Date(currentTime.getTime() + slotDurationMinutes * 60000);
-    
-    if (slotEnd <= endTime) {
-      slots.push({
-        start: currentTime.toISOString(),
-        end: slotEnd.toISOString()
-      });
+  // Generate slots in UTC that correspond to 10 AM - 6 PM New York time
+  for (let hour = startHour; hour < endHour; hour++) {
+    for (let min = 0; min < 60; min += slotDurationMinutes) {
+      const slotStartUTC = new Date(Date.UTC(year, month - 1, day, hour + utcOffset, min, 0));
+      const slotEndUTC = new Date(slotStartUTC.getTime() + slotDurationMinutes * 60000);
+      
+      // Make sure we don't go past 6 PM
+      const endHourLocal = (slotEndUTC.getUTCHours() - utcOffset + 24) % 24;
+      const endMinLocal = slotEndUTC.getUTCMinutes();
+      if (endHourLocal < endHour || (endHourLocal === endHour && endMinLocal === 0)) {
+        slots.push({
+          start: slotStartUTC.toISOString(),
+          end: slotEndUTC.toISOString()
+        });
+      }
     }
-    
-    currentTime = slotEnd;
   }
 
   return slots;
