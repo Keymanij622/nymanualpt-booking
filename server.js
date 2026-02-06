@@ -67,65 +67,69 @@ function confirmationEmailHTML(name, date) {
     hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'
   });
   const year = new Date().getFullYear();
+  const brand = '#14b8a6';
 
   return `
-  <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+  <div style="font-family: 'Arial', sans-serif; background:#f1f5f9; padding:24px;">
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
         <td align="center">
-          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
-            
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e2e8f0;">
             <!-- Header -->
             <tr>
-              <td style="background:#0d6e6e; padding:20px; text-align:center;">
-                <h1 style="color:#ffffff; margin:0; font-size:24px;">NY Manual Physical Therapy</h1>
+              <td style="background:#f8fafc; padding:28px; text-align:center; border-bottom:1px solid #e2e8f0;">
+                <div style="display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:18px; letter-spacing:0.08em; text-transform:uppercase; color:#0f172a;">
+                  <span style="display:inline-block; width:12px; height:12px; border-radius:999px; background:${brand};"></span>
+                  NY Manual PT
+                </div>
               </td>
             </tr>
 
             <!-- Body -->
             <tr>
-              <td style="padding:30px; color:#333;">
-                <h2 style="margin-top:0; color:#0d6e6e;">Appointment Confirmed</h2>
-                <p>Hi ${name},</p>
-                <p>Your appointment has been successfully booked.</p>
+              <td style="padding:32px 36px; color:#0f172a;">
+                <div style="text-align:center; margin-bottom:24px;">
+                  <div style="width:48px; height:48px; margin:0 auto 16px; border-radius:999px; background:#ecfdf5; color:${brand}; font-size:28px; line-height:48px;">✓</div>
+                  <h1 style="margin:0 0 8px; font-size:20px; font-weight:600;">Appointment Confirmed</h1>
+                  <p style="margin:0; color:#475569; font-size:14px; line-height:1.6;">Hi ${name}, your appointment with <strong style="color:#0f172a;">NY Manual PT</strong> has been successfully booked. We look forward to seeing you.</p>
+                </div>
 
-                <table cellpadding="10" cellspacing="0" style="background:#f9f9f9; border-radius:6px; width:100%; margin:20px 0;">
-                  <tr>
-                    <td><strong>Date & Time</strong></td>
-                    <td>${dateTimeStr}</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Location</strong></td>
-                    <td>5608 New Utrecht Avenue, Brooklyn, NY 11219</td>
-                  </tr>
-                </table>
+                <!-- Appointment Card -->
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:20px; margin-bottom:24px;">
+                  <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <div style="color:#94a3b8; font-size:18px; line-height:1;">📅</div>
+                    <div>
+                      <p style="margin:0 0 4px; font-size:11px; font-weight:600; letter-spacing:0.08em; color:#94a3b8; text-transform:uppercase;">Date & Time</p>
+                      <p style="margin:0; font-size:14px; font-weight:600; color:#0f172a;">${dateTimeStr}</p>
+                    </div>
+                  </div>
+                  <div style="height:1px; background:#e2e8f0; margin:16px 0;"></div>
+                  <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <div style="color:#94a3b8; font-size:18px; line-height:1;">📍</div>
+                    <div>
+                      <p style="margin:0 0 4px; font-size:11px; font-weight:600; letter-spacing:0.08em; color:#94a3b8; text-transform:uppercase;">Location</p>
+                      <p style="margin:0; font-size:14px; font-weight:600; color:#0f172a;">NY Manual PT</p>
+                      <p style="margin:2px 0 0; font-size:13px; color:#475569;">5608 New Utrecht Avenue, Brooklyn, NY 11219</p>
+                    </div>
+                  </div>
+                </div>
 
-                <p style="margin-top:20px;">
-                  If you need to reschedule or cancel, please contact us at <strong>(929) 705-0376</strong>.
-                </p>
+                <!-- Actions -->
+                <a href="https://newyorkmanualpt.com" style="display:block; width:100%; background:#0f172a; color:#ffffff; text-align:center; padding:12px 0; border-radius:10px; font-size:14px; font-weight:600; text-decoration:none;">Visit Our Website</a>
 
-                <p style="margin-top:20px;">
-                  <a href="https://newyorkmanualpt.com"
-                     style="display:inline-block; background:#0d6e6e; color:#ffffff; padding:12px 20px; border-radius:4px; text-decoration:none; font-weight:bold;">
-                     Visit Our Website
-                  </a>
-                </p>
-
-                <p style="margin-top:20px;">
-                  —<br />
-                  <strong>NY Manual Physical Therapy</strong>
-                </p>
+                <div style="margin-top:24px; text-align:center; border-top:1px solid #e2e8f0; padding-top:18px;">
+                  <p style="margin:0 0 6px; font-size:12px; color:#64748b;">Need to reschedule?</p>
+                  <p style="margin:0; font-size:12px; color:#94a3b8;">Please contact us at least 24 hours in advance. Call us at <a href="tel:9297050376" style="color:#475569; text-decoration:underline;">(929) 705-0376</a>.</p>
+                </div>
               </td>
             </tr>
 
             <!-- Footer -->
             <tr>
-              <td style="background:#eeeeee; padding:15px; text-align:center; font-size:12px; color:#777;">
-                © ${year} NY Manual Physical Therapy<br />
-                <a href="https://newyorkmanualpt.com" style="color:#0d6e6e;">newyorkmanualpt.com</a>
+              <td style="background:#f8fafc; padding:16px; text-align:center; font-size:11px; color:#94a3b8; border-top:1px solid #e2e8f0;">
+                © ${year} NY Manual PT · <a href="https://newyorkmanualpt.com" style="color:${brand}; text-decoration:none;">newyorkmanualpt.com</a>
               </td>
             </tr>
-
           </table>
         </td>
       </tr>
@@ -141,30 +145,64 @@ function adminNotificationHTML(name, email, phone, date, location) {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York'
   });
+  const brand = '#14b8a6';
 
   return `
-  <div style="font-family: Arial, sans-serif; padding:20px;">
-    <h2 style="color:#0d6e6e; margin-top:0;">New Appointment Booking</h2>
-    <table cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+  <div style="font-family: 'Arial', sans-serif; background:#f1f5f9; padding:24px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="border-bottom:1px solid #eee;"><strong>Name:</strong></td>
-        <td style="border-bottom:1px solid #eee;">${name}</td>
-      </tr>
-      <tr>
-        <td style="border-bottom:1px solid #eee;"><strong>Email:</strong></td>
-        <td style="border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td>
-      </tr>
-      <tr>
-        <td style="border-bottom:1px solid #eee;"><strong>Phone:</strong></td>
-        <td style="border-bottom:1px solid #eee;">${phone || '—'}</td>
-      </tr>
-      <tr>
-        <td style="border-bottom:1px solid #eee;"><strong>Date & Time:</strong></td>
-        <td style="border-bottom:1px solid #eee;">${dateTimeStr}</td>
-      </tr>
-      <tr>
-        <td><strong>Location:</strong></td>
-        <td>${location || '—'}</td>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e2e8f0;">
+            <tr>
+              <td style="background:${brand}; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; color:#ffffff;">
+                <span style="font-weight:700; text-transform:uppercase; letter-spacing:0.08em; font-size:14px;">NY Manual PT Admin</span>
+                <span style="background:rgba(255,255,255,0.2); color:#ffffff; font-size:10px; font-weight:700; padding:4px 8px; border-radius:999px; text-transform:uppercase;">New Booking</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 32px;">
+                <h1 style="margin:0 0 6px; font-size:18px; color:#0f172a;">New Appointment Request</h1>
+                <p style="margin:0 0 20px; font-size:13px; color:#64748b;">A new booking has been made via the website.</p>
+
+                <div style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; margin-bottom:20px;">
+                  <div style="background:#f8fafc; padding:10px 14px; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:600; color:#64748b; letter-spacing:0.08em; text-transform:uppercase;">Patient Details</div>
+                  <div style="padding:14px;">
+                    <p style="margin:0 0 10px; font-size:14px; font-weight:600; color:#0f172a;">${name}</p>
+                    <table cellpadding="6" cellspacing="0" style="width:100%; font-size:13px; color:#475569;">
+                      <tr>
+                        <td>Email</td>
+                        <td><a href="mailto:${email}" style="color:#0f172a; text-decoration:none;">${email}</a></td>
+                      </tr>
+                      <tr>
+                        <td>Phone</td>
+                        <td>${phone || '—'}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden;">
+                  <div style="background:#f8fafc; padding:10px 14px; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:600; color:#64748b; letter-spacing:0.08em; text-transform:uppercase;">Appointment Info</div>
+                  <table cellpadding="10" cellspacing="0" style="width:100%; font-size:13px; color:#0f172a;">
+                    <tr style="border-bottom:1px solid #e2e8f0;">
+                      <td style="color:#64748b; width:30%;">Date & Time</td>
+                      <td style="font-weight:600;">${dateTimeStr}</td>
+                    </tr>
+                    <tr>
+                      <td style="color:#64748b;">Location</td>
+                      <td style="font-weight:600;">${location || '—'}</td>
+                    </tr>
+                  </table>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f8fafc; padding:12px; text-align:center; font-size:11px; color:#94a3b8; border-top:1px solid #e2e8f0;">
+                System Notification
+              </td>
+            </tr>
+          </table>
+        </td>
       </tr>
     </table>
   </div>
