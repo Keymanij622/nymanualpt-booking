@@ -176,28 +176,23 @@ async function sendEmailNotification(booking) {
   if (!resend) return;
 
   try {
-    const clinicEmail = CLINIC_EMAIL;
-    const patientEmail = booking.email;
-    const shouldNotifyClinic = clinicEmail && clinicEmail.toLowerCase() !== patientEmail.toLowerCase();
-
-    if (shouldNotifyClinic) {
-      await resend.emails.send({
-        from: 'NY Manual PT Booking <onboarding@resend.dev>',
-        to: clinicEmail,
-        subject: `New Appointment: ${booking.name}`,
-        html: adminNotificationHTML(booking.name, booking.email, booking.phone, booking.start, booking.location)
-      });
-      console.log(`Email sent to clinic: ${clinicEmail}`);
-    }
-
+    // Email to clinic owner
     await resend.emails.send({
-      from: 'NY Manual Physical Therapy <onboarding@resend.dev>',
-      to: patientEmail,
-      bcc: clinicEmail,
+      from: 'NY Manual PT Booking <bookings@newyorkmanualpt.com>',
+      to: CLINIC_EMAIL,
+      subject: `New Appointment: ${booking.name}`,
+      html: adminNotificationHTML(booking.name, booking.email, booking.phone, booking.start, booking.location)
+    });
+    console.log(`Email sent to clinic: ${CLINIC_EMAIL}`);
+
+    // Confirmation email to patient
+    await resend.emails.send({
+      from: 'NY Manual Physical Therapy <bookings@newyorkmanualpt.com>',
+      to: booking.email,
       subject: `Your Appointment is Confirmed - NY Manual PT`,
       html: confirmationEmailHTML(booking.name, booking.start)
     });
-    console.log(`Confirmation email sent to patient: ${patientEmail}`);
+    console.log(`Confirmation email sent to patient: ${booking.email}`);
   } catch (err) {
     console.error('Email error:', err.message);
   }
