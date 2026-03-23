@@ -305,8 +305,7 @@ function quizConfirmationEmailHTML(submission) {
             </tr>
             <tr>
               <td style="padding:30px; color:#333;">
-                <h2 style="margin-top:0; color:#0d6e6e;">We Received Your Pain Quiz</h2>
-                <p>Hi ${escapeHtml(submission.fullName)},</p>
+                <p style="margin-top:0;">Hi ${escapeHtml(submission.fullName)},</p>
                 <p>Thank you. Your preferred visit request was received by NY Manual Physical Therapy.</p>
 
                 <table cellpadding="10" cellspacing="0" style="background:#f9f9f9; border-radius:6px; width:100%; margin:20px 0;">
@@ -864,7 +863,7 @@ app.post('/quiz-lead', async (req, res) => {
     await resend.emails.send({
       from: `NY Manual Physical Therapy <${RESEND_FROM_EMAIL}>`,
       to: submission.email,
-      subject: `We Received Your Pain Quiz - NY Manual PT`,
+      subject: `Preferred Visit Request Received - NY Manual PT`,
       html: quizConfirmationEmailHTML(submission)
     });
 
@@ -933,11 +932,3 @@ app.listen(PORT, () => {
   console.log(`  GET  /quiz-leads             - View all quiz submissions`);
   console.log(`  DELETE /bookings/:id         - Cancel a booking`);
 });
-
-
-  
-                  
-            
-
-        
-
