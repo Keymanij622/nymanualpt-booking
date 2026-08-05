@@ -131,12 +131,6 @@ function confirmationEmailHTML(name, date, program, reason) {
                 </p>
 
                 <p style="margin-top:20px;">
-                  <a href="https://newyorkmanualpt.com"
-                     style="display:inline-block; background:#0d6e6e; color:#ffffff; padding:12px 20px; border-radius:4px; text-decoration:none; font-weight:bold;">
-                     Visit Our Website
-                  </a>
-                </p>
-
                 <p style="margin-top:20px;">
                   —<br />
                   <strong>NY Manual Physical Therapy</strong>
@@ -265,11 +259,8 @@ function quizNotificationHTML(submission) {
     ['Phone', escapeHtml(submission.phone || '—')],
     ['Pain Rating', escapeHtml(submission.painLevel || '—')],
     ['Pain Type', escapeHtml(submission.painType || '—')],
-    ['How It Started', escapeHtml(submission.cause || '—')],
-    ['How Long', escapeHtml(submission.duration || '—')],
-    ['Preferred Day', escapeHtml(submission.preferredDay || '—')],
+    ['Preferred Date', escapeHtml(submission.preferredDate || '—')],
     ['Preferred Time', escapeHtml(submission.preferredTime || '—')],
-    ['Same-Day Requested', submission.sameDayRequested ? 'Yes' : 'No'],
     ['Source Page', escapeHtml(submission.sourcePage || '—')],
     ['Submitted', escapeHtml(submittedAt)]
   ].map(([label, value], index, arr) => `
@@ -310,31 +301,21 @@ function quizConfirmationEmailHTML(submission) {
 
                 <table cellpadding="10" cellspacing="0" style="background:#f9f9f9; border-radius:6px; width:100%; margin:20px 0;">
                   <tr>
-                    <td><strong>Preferred Day</strong></td>
-                    <td>${escapeHtml(submission.preferredDay || '—')}</td>
+                    <td><strong>Preferred Date</strong></td>
+                    <td>${escapeHtml(submission.preferredDate || '—')}</td>
                   </tr>
                   <tr>
                     <td><strong>Preferred Time</strong></td>
                     <td>${escapeHtml(submission.preferredTime || '—')}</td>
                   </tr>
                   <tr>
-                    <td><strong>Same-Day Requested</strong></td>
-                    <td>${submission.sameDayRequested ? 'Yes' : 'No'}</td>
-                  </tr>
-                  <tr>
                     <td><strong>Requested Appointment Slot</strong></td>
-                    <td>${escapeHtml(submission.preferredDay || '—')} | ${escapeHtml(submission.preferredTime || '—')}</td>
+                    <td>${escapeHtml(submission.preferredDate || '—')} | ${escapeHtml(submission.preferredTime || '—')}</td>
                   </tr>
                 </table>
 
                 <p style="margin-top:20px;">If you need immediate help or want to talk with the clinic directly, call <strong>(929) 705-0376</strong>.</p>
 
-                <p style="margin-top:20px;">
-                  <a href="https://newyorkmanualpt.com/booking.html"
-                     style="display:inline-block; background:#0d6e6e; color:#ffffff; padding:12px 20px; border-radius:4px; text-decoration:none; font-weight:bold;">
-                     View Booking Page
-                  </a>
-                </p>
 
                 <p style="margin-top:20px;">
                   —<br />
@@ -812,16 +793,11 @@ app.post('/quiz-lead', async (req, res) => {
     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
     painLevel: String(body.painLevel || '').trim(),
     painType: String(body.painType || '').trim(),
-    cause: String(body.cause || '').trim(),
-    duration: String(body.duration || '').trim(),
-    worsens: normalizeArray(body.worsens),
-    treatmentsTried: normalizeArray(body.treatmentsTried),
     fullName: String(body.fullName || '').trim(),
     email: String(body.email || '').trim(),
     phone: String(body.phone || '').trim(),
-    preferredDay: String(body.preferredDay || '').trim(),
+    preferredDate: String(body.preferredDate || '').trim(),
     preferredTime: String(body.preferredTime || '').trim(),
-    sameDayRequested: Boolean(body.sameDayRequested),
     sourcePage: String(body.sourcePage || '').trim(),
     createdAt: new Date().toISOString(),
     emailStatus: 'pending'
@@ -831,7 +807,7 @@ app.post('/quiz-lead', async (req, res) => {
     return res.status(400).json({ error: 'Missing required contact fields: fullName, email, phone' });
   }
 
-  if (!submission.painLevel || !submission.painType || !submission.duration) {
+  if (!submission.painLevel || !submission.painType) {
     return res.status(400).json({ error: 'Missing required quiz fields' });
   }
 
