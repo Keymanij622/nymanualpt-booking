@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ny-manual-pt-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CLINIC_EMAIL
+        value: hewidypt@gmail.com
+      - key: RESEND_FROM_EMAIL
+        value: info@newyorkmanualpt.com
